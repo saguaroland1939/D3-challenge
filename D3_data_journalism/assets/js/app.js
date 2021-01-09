@@ -58,9 +58,18 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .attr("cx", data => x_Scale(data.poverty))
         .attr("cy", data => y_Scale(data.healthcare))
         .attr("r", 15)
-        .attr("fill", "blue")
+        .attr("fill", "#34a1eb")
     
     // Add labels to circles
+    chartGroup.selectAll("text")
+        .data(data)
+        .enter()
+        .append("text")
+        .text(data => data.abbr)
+        .attr("text-anchor", "middle")
+        .attr("x", data => x_Scale(data.poverty))
+        .attr("y", data => y_Scale(data.healthcare)+5)
+        .attr("fill", "white");
 
     // Declares scaled axes objects
     var y_axis = d3.axisLeft(y_Scale).ticks(5);
