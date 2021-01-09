@@ -1,5 +1,6 @@
 // README
 
+
 // Declare SVG height and width variables
 var svgWidth = 1000;
 var svgHeight = 750;
@@ -15,7 +16,7 @@ var svg = d3
 var margin =
 {
     top: 50,
-    botton: 50,
+    bottom: 50,
     left: 50,
     right: 50
 };
@@ -23,6 +24,7 @@ var margin =
 // Set up chart height and width
 var chartWidth = svgWidth - margin.left - margin.right;
 var chartHeight = svgHeight - margin.top - margin.bottom;
+
 
 // Append group element to SVG element that will hold chart. Shift it within margins
 var chartGroup = svg.append("g")
@@ -32,53 +34,47 @@ var chartGroup = svg.append("g")
 d3.csv("/assets/data/data.csv").then(function (data, err) {
     if (err) throw err;
 
-    // Figure out how to extract arrays of interest
-    var poverty = data.map(x =>x.poverty);
-    var healthcare = data.map(x =>x.healthcare);
 
-    // Convert data arrays to numeric format for scaling and plotting
-    poverty.forEach(function (data) {
-        data = +data;
+    // Convert arrays of interest to number data type
+    data.forEach(function(d) {
+        d.poverty = +d.poverty;
+        d.healthcare = +d.healthcare;
     });
-
-    healthcare.forEach(function (data) {
-        data = +data;
-    });
-
+    
     // Declares x and y scaling rules
     var x_Scale = d3.scaleLinear()
-        .domain([0, d3.max([poverty])])
+        .domain([0, d3.max(data, d => d.poverty)])
         .range([0, chartWidth]);
 
     var y_Scale = d3.scaleLinear()
-        .domain([0, d3.max([healthcare])])
+        .domain([0, d3.max(data, d => d.healthcare)])
         .range([chartHeight, 0]);
 
     // Appends circles to chart group and position based on poverty and healthcare data values
-    var circlesGroup = chartGroup.selectAll("circle")
+    chartGroup.selectAll("circle")
         .data(data)
         .enter()
         .append("circle")
-        .attr("cx", d => x_Scale(poverty))
-        .attr("cy", d => y_Scale(healthcare))
-        .attr("fill", "blue");
-    // Adds text labels
+        .attr("cx", data => x_Scale(data.poverty))
+        .attr("cy", data => y_Scale(data.healthcare))
+        .attr("r", 15)
+        .attr("fill", "blue")
+    
+    // Add labels to circles
 
-    // Declare scaled axes objects
-    var y_axis = d3.axisLeft(y_Scale);
-    var x_axis = d3.axisBottom(x_Scale);
+    // Declares scaled axes objects
+    var y_axis = d3.axisLeft(y_Scale).ticks(5);
+    var x_axis = d3.axisBottom(x_Scale).ticks(5);
 
-    // Append two group elements to SVG to hold axes. Shift the x-axis group into place
+    // Appends two group elements to SVG to hold axes.
     chartGroup.append("g")
-        .classed("axis", true)
         .call(y_axis);
-
+        
     chartGroup.append("g")
-        .classed("axis", true)
-        .attr("transform", "translate(0, " + chartHeight + ")")
+        .attr("transform", "translate(0, " + chartHeight + ")") //Shifts x-axis to bottom of chart area
         .call(x_axis);
 
-    // Log any errors to the console
+    // Logs any errors to the console
 }).catch(function (error) {
     console.log(error);
 
