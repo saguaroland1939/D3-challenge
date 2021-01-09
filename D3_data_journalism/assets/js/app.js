@@ -2,8 +2,8 @@
 
 
 // Declare SVG height and width variables
-var svgWidth = 1000;
-var svgHeight = 750;
+var svgWidth = 750;
+var svgHeight = 500;
 
 // Append SVG element to #scatter div
 var svg = d3
@@ -60,7 +60,7 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .attr("r", 15)
         .attr("fill", "#34a1eb")
     
-    // Add labels to circles
+    // Adds labels to circles
     chartGroup.selectAll("text")
         .data(data)
         .enter()
@@ -75,13 +75,33 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
     var y_axis = d3.axisLeft(y_Scale).ticks(5);
     var x_axis = d3.axisBottom(x_Scale).ticks(5);
 
-    // Appends two group elements to SVG to hold axes.
+    // Appends axes
     chartGroup.append("g")
         .call(y_axis);
         
     chartGroup.append("g")
         .attr("transform", "translate(0, " + chartHeight + ")") //Shifts x-axis to bottom of chart area
         .call(x_axis);
+
+    // Appends x-axis labels
+    var labelsGroup = chartGroup.append("g")
+    .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + 20})`); // Shift to bottom center of chart area
+
+    labelsGroup.append("text")
+        .attr("text-anchor", "middle")
+        .attr("x", 0)
+        .attr("y", 20)
+        .text("Poverty Index");
+
+    // Append y-axis labels
+    chartGroup.append("text")
+        .attr("text-anchor", "middle")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x", 0 - (chartHeight / 2))
+        .attr("dy", "1em")
+        .classed("axis-text", true)
+        .text("Healthcare Index");
 
     // Logs any errors to the console
 }).catch(function (error) {
