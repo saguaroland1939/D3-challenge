@@ -33,12 +33,11 @@ var chartGroup = svg.append("g")
 // Declare variables to hold user's dataset choice.
 // Defaults are set to display healthcare vs. poverty on page load.
 var chosenXAxis = "poverty";
-var chosenYAxis = "healthcare"
+var chosenYAxis = "healthcare";
 
 // Import data
 d3.csv("/assets/data/data.csv").then(function (data, err) {
     if (err) throw err;
-
 
     // Convert arrays of interest to number data type
     data.forEach(function(d) {
@@ -47,13 +46,13 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         d.age = +d.age;
         d.smokes = +d.smokes;
     });
-    
+
     // Declares function to update x scaling rule based on user choice
     function getXScale(data, chosenXAxis) 
     {
         var x_Scale = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d[chosenXAxis])])
-        .range([0, chartWidth]);
+                        .domain([0, d3.max(data.map(d => d[chosenXAxis]))])
+                        .range([0, chartWidth]);
         return x_Scale;
     }
     
@@ -61,11 +60,10 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
     function getYScale(data, chosenYAxis) 
     {
         var y_Scale = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d[chosenYAxis])])
-        .range([chartHeight, 0]);
+                        .domain([0, d3.max(data.map(d => d[chosenYAxis]))])
+                        .range([chartHeight, 0]);
         return y_Scale;
     }
-    
 
     // Appends circles to chart group and position based on poverty and healthcare data values
     chartGroup.selectAll("circle")
@@ -122,7 +120,7 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left)
         .attr("x", 0 - (chartHeight / 2))
-        .attr("dy", "1em")
+        .attr("dy", "4em") // Specifies label location
         .classed("axis-text", true)
         .text("Healthcare Index");
     
@@ -131,7 +129,7 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left)
         .attr("x", 0 - (chartHeight / 2))
-        .attr("dy", "0em")
+        .attr("dy", "2.8em") // Specifies label location
         .classed("axis-text", true)
         .text("Smoking Index");
 
