@@ -101,6 +101,7 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
 
     // Appends x-axis label
     labelGroupX.append("text")
+        .data("Poverty Index")
         .attr("text-anchor", "middle")
         .attr("x", 0)
         .attr("y", 20)
@@ -108,6 +109,7 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
     
     // Appends 2nd x-axis label
     labelGroupX.append("text")
+        .data("Age")
         .attr("text-anchor", "middle")
         .attr("x", 0)
         .attr("y", 40)
@@ -120,6 +122,7 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
 
     // Appends y-axis label
     labelGroupY.append("text")
+        .data("Healthcare Index")
         .attr("text-anchor", "middle")
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left)
@@ -130,6 +133,7 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
     
     // Appends 2nd y-axis label
     labelGroupY.append("text")
+        .data("Smoking Index")
         .attr("text-anchor", "middle")
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left)
@@ -139,11 +143,18 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .text("Smoking Index");
 
     // Event listener for x-axis labels
-    labelGroupX.selectAll("text")
-        .on("click", function()
+    labelGroupX.selectAll("text").on("click", function()
             {
-                var value = d3.select(this).attr("value");
-                console.log(value)
+                var value = d3.select(this).text();
+
+                if (value == "Poverty Index") {
+                    value = "poverty";
+                }
+
+                if (value == "Age") {
+                    value = "age";
+                }
+
                 if(value !== chosenXAxis)
                 {
                     chosenXAxis = value;
@@ -170,42 +181,42 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
                         .attr("x", d => x_Scale(d[chosenXAxis]))
                         .attr("y", d => y_Scale(d[chosenYAxis])+5)
                         .attr("fill", "white");
-                    var y_axis = d3.axisLeft(y_Scale).ticks(5);
-                    var x_axis = d3.axisBottom(x_Scale).ticks(5);
-                    chartGroup.append("g")
-                        .call(y_axis);
-                    chartGroup.append("g")
-                        .attr("transform", "translate(0, " + chartHeight + ")")
-                        .call(x_axis);
-                     var labelGroupX = chartGroup.append("g")
-                        .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + 20})`);
-                    labelGroupX.append("text")
-                        .attr("text-anchor", "middle")
-                        .attr("x", 0)
-                        .attr("y", 20)
-                        .text("Poverty Index");
-                    labelGroupX.append("text")
-                        .attr("text-anchor", "middle")
-                        .attr("x", 0)
-                        .attr("y", 40)
-                        .text("Age");
-                    var labelGroupY = chartGroup.append("g");
-                    labelGroupY.append("text")
-                        .attr("text-anchor", "middle")
-                        .attr("transform", "rotate(-90)")
-                        .attr("y", 0 - margin.left)
-                        .attr("x", 0 - (chartHeight / 2))
-                        .attr("dy", "4em")
-                        .classed("axis-text", true)
-                        .text("Healthcare Index");
-                    labelGroupY.append("text")
-                        .attr("text-anchor", "middle")
-                        .attr("transform", "rotate(-90)")
-                        .attr("y", 0 - margin.left)
-                        .attr("x", 0 - (chartHeight / 2))
-                        .attr("dy", "2.8em")
-                        .classed("axis-text", true)
-                        .text("Smoking Index");
+                    // var y_axis = d3.axisLeft(y_Scale).ticks(5);
+                    // var x_axis = d3.axisBottom(x_Scale).ticks(5);
+                    // chartGroup.append("g")
+                    //     .call(y_axis);
+                    // chartGroup.append("g")
+                    //     .attr("transform", "translate(0, " + chartHeight + ")")
+                    //     .call(x_axis);
+                    //  var labelGroupX = chartGroup.append("g")
+                    //     .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + 20})`);
+                    //labelGroupX.append("text")
+                    //   .attr("text-anchor", "middle")
+                    //    .attr("x", 0)
+                    //    .attr("y", 20)
+                    //    .text("Poverty Index");
+                    //labelGroupX.append("text")
+                    //    .attr("text-anchor", "middle")
+                    //    .attr("x", 0)
+                    //    .attr("y", 40)
+                    //    .text("Age");
+                    // var labelGroupY = chartGroup.append("g");
+                    // labelGroupY.append("text")
+                    //     .attr("text-anchor", "middle")
+                    //     .attr("transform", "rotate(-90)")
+                    //     .attr("y", 0 - margin.left)
+                    //     .attr("x", 0 - (chartHeight / 2))
+                    //     .attr("dy", "4em")
+                    //     .classed("axis-text", true)
+                    //     .text("Healthcare Index");
+                    // labelGroupY.append("text")
+                    //     .attr("text-anchor", "middle")
+                    //     .attr("transform", "rotate(-90)")
+                    //     .attr("y", 0 - margin.left)
+                    //     .attr("x", 0 - (chartHeight / 2))
+                    //     .attr("dy", "2.8em")
+                    //     .classed("axis-text", true)
+                    //     .text("Smoking Index");
                 } // closes if
             }); // closes event listener
 
@@ -240,42 +251,42 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
                         .attr("x", d => x_Scale(d[chosenXAxis]))
                         .attr("y", d => y_Scale(d[chosenYAxis])+5)
                         .attr("fill", "white");
-                    var y_axis = d3.axisLeft(y_Scale).ticks(5);
-                    var x_axis = d3.axisBottom(x_Scale).ticks(5);
-                    chartGroup.append("g")
-                        .call(y_axis);
-                    chartGroup.append("g")
-                        .attr("transform", "translate(0, " + chartHeight + ")")
-                        .call(x_axis);
-                     var labelGroupX = chartGroup.append("g")
-                        .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + 20})`);
-                    labelGroupX.append("text")
-                        .attr("text-anchor", "middle")
-                        .attr("x", 0)
-                        .attr("y", 20)
-                        .text("Poverty Index");
-                    labelGroupX.append("text")
-                        .attr("text-anchor", "middle")
-                        .attr("x", 0)
-                        .attr("y", 40)
-                        .text("Age");
-                    var labelGroupY = chartGroup.append("g");
-                    labelGroupY.append("text")
-                        .attr("text-anchor", "middle")
-                        .attr("transform", "rotate(-90)")
-                        .attr("y", 0 - margin.left)
-                        .attr("x", 0 - (chartHeight / 2))
-                        .attr("dy", "4em")
-                        .classed("axis-text", true)
-                        .text("Healthcare Index");
-                    labelGroupY.append("text")
-                        .attr("text-anchor", "middle")
-                        .attr("transform", "rotate(-90)")
-                        .attr("y", 0 - margin.left)
-                        .attr("x", 0 - (chartHeight / 2))
-                        .attr("dy", "2.8em")
-                        .classed("axis-text", true)
-                        .text("Smoking Index");
+                    // var y_axis = d3.axisLeft(y_Scale).ticks(5);
+                    // var x_axis = d3.axisBottom(x_Scale).ticks(5);
+                    // chartGroup.append("g")
+                    //     .call(y_axis);
+                    // chartGroup.append("g")
+                    //     .attr("transform", "translate(0, " + chartHeight + ")")
+                    //     .call(x_axis);
+                    //  var labelGroupX = chartGroup.append("g")
+                    //     .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + 20})`);
+                    // labelGroupX.append("text")
+                    //     .attr("text-anchor", "middle")
+                    //     .attr("x", 0)
+                    //     .attr("y", 20)
+                    //     .text("Poverty Index");
+                    // labelGroupX.append("text")
+                    //     .attr("text-anchor", "middle")
+                    //     .attr("x", 0)
+                    //     .attr("y", 40)
+                    //     .text("Age");
+                    // var labelGroupY = chartGroup.append("g");
+                    // labelGroupY.append("text")
+                    //     .attr("text-anchor", "middle")
+                    //     .attr("transform", "rotate(-90)")
+                    //     .attr("y", 0 - margin.left)
+                    //     .attr("x", 0 - (chartHeight / 2))
+                    //     .attr("dy", "4em")
+                    //     .classed("axis-text", true)
+                    //     .text("Healthcare Index");
+                    // labelGroupY.append("text")
+                    //     .attr("text-anchor", "middle")
+                    //     .attr("transform", "rotate(-90)")
+                    //     .attr("y", 0 - margin.left)
+                    //     .attr("x", 0 - (chartHeight / 2))
+                    //     .attr("dy", "2.8em")
+                    //     .classed("axis-text", true)
+                    //     .text("Smoking Index");
                 } // closes if
             }); // closes event listener
     // Logs any errors to the console
