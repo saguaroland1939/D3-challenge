@@ -1,18 +1,18 @@
 // README
 
 
-// Declare SVG height and width variables
+// Declares SVG height and width variables
 var svgWidth = 750;
 var svgHeight = 500;
 
-// Append SVG element to #scatter div
+// Appends SVG element to #scatter div
 var svg = d3
     .select("#scatter")
     .append("svg")
     .attr("width", svgWidth)
     .attr("height", svgHeight);
 
-// Declare object variable to hold margins
+// Declares object variable to hold margins
 var margin =
 {
     top: 100,
@@ -21,25 +21,25 @@ var margin =
     right: 100
 };
 
-// Set up chart height and width
+// Sets up chart height and width
 var chartWidth = svgWidth - margin.left - margin.right;
 var chartHeight = svgHeight - margin.top - margin.bottom;
 
 
-// Append group element to SVG element that will hold chart. Shift it within margins
+// Appends group element to SVG element that will hold chart. Shifts it within margins.
 var chartGroup = svg.append("g")
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-// Declare variables to hold user's dataset choice.
+// Declares variables to hold user's dataset choice.
 // Defaults are set to display healthcare vs. poverty on page load.
 var chosenXAxis = "poverty";
 var chosenYAxis = "healthcare";
 
-// Import data
+// Imports data
 d3.csv("/assets/data/data.csv").then(function (data, err) {
     if (err) throw err;
 
-    // Convert arrays of interest to number data type
+    // Converts arrays of interest to number data type
     data.forEach(function(d) {
         d.poverty = +d.poverty;
         d.healthcare = +d.healthcare;
@@ -48,32 +48,25 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
     });
 
     // Declares function to update x scaling rule based on user choice
-    function getXScale(data, chosenXAxis) 
-    {
-        var x_Scale = d3.scaleLinear()
-                        .domain([0, d3.max(data.map(d => d[chosenXAxis]))])
-                        .range([0, chartWidth]);
-        return x_Scale;
-    }
+    var x_Scale = d3.scaleLinear()
+                    .domain([0, d3.max(data.map(d => d[chosenXAxis]))])
+                    .range([0, chartWidth]);
     
     // Declares function to update y scaling rule based on user choice
-    function getYScale(data, chosenYAxis) 
-    {
-        var y_Scale = d3.scaleLinear()
-                        .domain([0, d3.max(data.map(d => d[chosenYAxis]))])
-                        .range([chartHeight, 0]);
-        return y_Scale;
-    }
+    var y_Scale = d3.scaleLinear()
+                    .domain([0, d3.max(data.map(d => d[chosenYAxis]))])
+                    .range([chartHeight, 0]);
 
     // Appends circles to chart group and position based on poverty and healthcare data values
     chartGroup.selectAll("circle")
         .data(data)
         .enter()
         .append("circle")
-        .attr("cx", getXScale(data, chosenXAxis))
-        .attr("cy", getYScale(data, chosenYAxis))
+        // Extracts an array value, scales it, and uses the scaled value to position the center of the circle
+        .attr("cx", d => x_Scale(d[chosenXAxis])) 
+        .attr("cy", d => y_Scale(d[chosenYAxis]))
         .attr("r", 15)
-        .attr("fill", "#34a1eb")
+        .attr("fill", "#34a1eb");
     
     // Adds labels to circles
     chartGroup.selectAll("text")
@@ -81,14 +74,16 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .enter()
         .append("text")
         .text(data => data.abbr)
-        .attr("text-anchor", "middle")
-        .attr("x", getXScale(data, chosenXAxis))
-        .attr("y", getYScale(data, chosenYAxis))
+        // Places the center (rather than edge) of the text label at the x,y position
+        .attr("text-anchor", "middle") 
+        .attr("x", d => x_Scale(d[chosenXAxis]))
+        // Scoots the text label down a little to be better centered over circle
+        .attr("y", d => y_Scale(d[chosenYAxis])+5)
         .attr("fill", "white");
 
     // Declares scaled axes objects
-    var y_axis = d3.axisLeft(getYScale(data, chosenYAxis)).ticks(5);
-    var x_axis = d3.axisBottom(getXScale(data, chosenXAxis)).ticks(5);
+    var y_axis = d3.axisLeft(y_Scale).ticks(5);
+    var x_axis = d3.axisBottom(x_Scale).ticks(5);
 
     // Appends axes
     chartGroup.append("g")
@@ -98,24 +93,33 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .attr("transform", "translate(0, " + chartHeight + ")") //Shifts x-axis to bottom of chart area
         .call(x_axis);
 
-    // Appends x-axis labels
-    var labelsGroup = chartGroup.append("g")
-    .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + 20})`); // Shift to bottom center of chart area
+    // X-axis labels
 
-    labelsGroup.append("text")
+    // Appends group element to hold x-axis labels so that an event listener can be assigned to the group.
+    var labelGroupX = chartGroup.append("g")
+        .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + 20})`); // Shift to bottom center of chart area
+
+    // Appends x-axis label
+    labelGroupX.append("text")
         .attr("text-anchor", "middle")
         .attr("x", 0)
         .attr("y", 20)
         .text("Poverty Index");
     
-    labelsGroup.append("text")
+    // Appends 2nd x-axis label
+    labelGroupX.append("text")
         .attr("text-anchor", "middle")
         .attr("x", 0)
         .attr("y", 40)
         .text("Age");
 
-    // Append y-axis labels
-    chartGroup.append("text")
+    // Y-axis labels
+
+    // Appends group element to hold y-axis labels so an event listener can be assigned to the group.
+    var labelGroupY = chartGroup.append("g");
+
+    // Appends y-axis label
+    labelGroupY.append("text")
         .attr("text-anchor", "middle")
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left)
@@ -124,7 +128,8 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .classed("axis-text", true)
         .text("Healthcare Index");
     
-    chartGroup.append("text")
+    // Appends 2nd y-axis label
+    labelGroupY.append("text")
         .attr("text-anchor", "middle")
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left)
@@ -133,6 +138,146 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .classed("axis-text", true)
         .text("Smoking Index");
 
+    // Event listener for x-axis labels
+    labelGroupX.selectAll("text")
+        .on("click", function()
+            {
+                var value = d3.select(this).attr("value");
+                console.log(value)
+                if(value !== chosenXAxis)
+                {
+                    chosenXAxis = value;
+                    var x_Scale = d3.scaleLinear()
+                        .domain([0, d3.max(data.map(d => d[chosenXAxis]))])
+                        .range([0, chartWidth]);
+                    var y_Scale = d3.scaleLinear()
+                        .domain([0, d3.max(data.map(d => d[chosenYAxis]))])
+                        .range([chartHeight, 0]);
+                    chartGroup.selectAll("circle")
+                        .data(data)
+                        .enter()
+                        .append("circle")
+                        .attr("cx", d => x_Scale(d[chosenXAxis])) 
+                        .attr("cy", d => y_Scale(d[chosenYAxis]))
+                        .attr("r", 15)
+                        .attr("fill", "#34a1eb");
+                    chartGroup.selectAll("text")
+                        .data(data)
+                        .enter()
+                        .append("text")
+                        .text(data => data.abbr)
+                        .attr("text-anchor", "middle") 
+                        .attr("x", d => x_Scale(d[chosenXAxis]))
+                        .attr("y", d => y_Scale(d[chosenYAxis])+5)
+                        .attr("fill", "white");
+                    var y_axis = d3.axisLeft(y_Scale).ticks(5);
+                    var x_axis = d3.axisBottom(x_Scale).ticks(5);
+                    chartGroup.append("g")
+                        .call(y_axis);
+                    chartGroup.append("g")
+                        .attr("transform", "translate(0, " + chartHeight + ")")
+                        .call(x_axis);
+                     var labelGroupX = chartGroup.append("g")
+                        .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + 20})`);
+                    labelGroupX.append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("x", 0)
+                        .attr("y", 20)
+                        .text("Poverty Index");
+                    labelGroupX.append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("x", 0)
+                        .attr("y", 40)
+                        .text("Age");
+                    var labelGroupY = chartGroup.append("g");
+                    labelGroupY.append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 0 - margin.left)
+                        .attr("x", 0 - (chartHeight / 2))
+                        .attr("dy", "4em")
+                        .classed("axis-text", true)
+                        .text("Healthcare Index");
+                    labelGroupY.append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 0 - margin.left)
+                        .attr("x", 0 - (chartHeight / 2))
+                        .attr("dy", "2.8em")
+                        .classed("axis-text", true)
+                        .text("Smoking Index");
+                } // closes if
+            }); // closes event listener
+
+    // Event listener for y-axis labels
+    labelGroupY.selectAll("text")
+        .on("click", function()
+            {
+                var value = d3.select(this).attr("value");
+                if(value !== chosenYAxis)
+                {
+                    chosenXAxis = value;
+                    var x_Scale = d3.scaleLinear()
+                        .domain([0, d3.max(data.map(d => d[chosenXAxis]))])
+                        .range([0, chartWidth]);
+                    var y_Scale = d3.scaleLinear()
+                        .domain([0, d3.max(data.map(d => d[chosenYAxis]))])
+                        .range([chartHeight, 0]);
+                    chartGroup.selectAll("circle")
+                        .data(data)
+                        .enter()
+                        .append("circle")
+                        .attr("cx", d => x_Scale(d[chosenXAxis])) 
+                        .attr("cy", d => y_Scale(d[chosenYAxis]))
+                        .attr("r", 15)
+                        .attr("fill", "#34a1eb");
+                    chartGroup.selectAll("text")
+                        .data(data)
+                        .enter()
+                        .append("text")
+                        .text(data => data.abbr)
+                        .attr("text-anchor", "middle") 
+                        .attr("x", d => x_Scale(d[chosenXAxis]))
+                        .attr("y", d => y_Scale(d[chosenYAxis])+5)
+                        .attr("fill", "white");
+                    var y_axis = d3.axisLeft(y_Scale).ticks(5);
+                    var x_axis = d3.axisBottom(x_Scale).ticks(5);
+                    chartGroup.append("g")
+                        .call(y_axis);
+                    chartGroup.append("g")
+                        .attr("transform", "translate(0, " + chartHeight + ")")
+                        .call(x_axis);
+                     var labelGroupX = chartGroup.append("g")
+                        .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + 20})`);
+                    labelGroupX.append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("x", 0)
+                        .attr("y", 20)
+                        .text("Poverty Index");
+                    labelGroupX.append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("x", 0)
+                        .attr("y", 40)
+                        .text("Age");
+                    var labelGroupY = chartGroup.append("g");
+                    labelGroupY.append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 0 - margin.left)
+                        .attr("x", 0 - (chartHeight / 2))
+                        .attr("dy", "4em")
+                        .classed("axis-text", true)
+                        .text("Healthcare Index");
+                    labelGroupY.append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 0 - margin.left)
+                        .attr("x", 0 - (chartHeight / 2))
+                        .attr("dy", "2.8em")
+                        .classed("axis-text", true)
+                        .text("Smoking Index");
+                } // closes if
+            }); // closes event listener
     // Logs any errors to the console
 }).catch(function (error) {
     console.log(error);
