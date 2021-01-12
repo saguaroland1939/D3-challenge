@@ -69,7 +69,7 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .attr("fill", "#34a1eb");
     
     // Append group element to chartGroup to hold circle labels so they can be removed on click events
-    circleTextGroup = chartGroup.append("g");
+    circleTextGroup = svg.append("g");
 
     // Adds labels to circles
     circleTextGroup.selectAll("text")
@@ -79,9 +79,9 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .text(data => data.abbr)
         // Places the center (rather than edge) of the text label at the x,y position
         .attr("text-anchor", "middle") 
-        .attr("x", d => x_Scale(d[chosenXAxis]))
+        .attr("x", d => x_Scale(d[chosenXAxis])+100)
         // Scoots the text label down a little to be better centered over circle
-        .attr("y", d => y_Scale(d[chosenYAxis])+5)
+        .attr("y", d => y_Scale(d[chosenYAxis])+105)
         .attr("fill", "white");
 
     // Declares scaled axes objects
@@ -188,15 +188,15 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
                         .attr("cy", d => y_Scale(d[chosenYAxis]))
                         .attr("r", 15)
                         .attr("fill", "#34a1eb");
-                    chartGroup.selectAll("text")
+                    circleTextGroup.selectAll("text")
                         .data(data)
                         .enter()
                         .append("text")
                         .text(data => data.abbr)
                         .attr("text-anchor", "middle") 
-                        .attr("x", d => x_Scale(d[chosenXAxis]))
-                        .attr("y", d => y_Scale(d[chosenYAxis])+5)
-                        .attr("fill", "black");
+                        .attr("x", d => x_Scale(d[chosenXAxis])+100)
+                        .attr("y", d => y_Scale(d[chosenYAxis])+105)
+                        .attr("fill", "white");
                 } // closes if
             }); // closes event listener
 
@@ -241,15 +241,15 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
                         .attr("cy", d => y_Scale(d[chosenYAxis]))
                         .attr("r", 15)
                         .attr("fill", "#34a1eb");
-                    chartGroup.selectAll("text")
+                    circleTextGroup.selectAll("text")
                         .data(data)
                         .enter()
                         .append("text")
                         .text(data => data.abbr)
                         .attr("text-anchor", "middle") 
-                        .attr("x", d => x_Scale(d[chosenXAxis]))
-                        .attr("y", d => y_Scale(d[chosenYAxis])+5)
-                        .attr("fill", "black");
+                        .attr("x", d => x_Scale(d[chosenXAxis])+100)
+                        .attr("y", d => y_Scale(d[chosenYAxis])+105)
+                        .attr("fill", "white");
                 } // closes if
             }); // closes event listener
     // Logs any errors to the console
