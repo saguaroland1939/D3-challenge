@@ -47,15 +47,24 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         d.smokes = +d.smokes;
     });
 
+    var xMin = d3.min(data.map(d => d[chosenXAxis]));
+    var xMax = d3.max(data.map(d => d[chosenXAxis]));
+
+    var yMin = d3.min(data.map(d => d[chosenYAxis]));
+    var yMax = d3.max(data.map(d => d[chosenYAxis]));    
+
+    var xAxisShift = (xMax-xMin)/40;
+    var yAxisShift = (yMax-yMin)/40;
+
     // Declares function to update x scaling rule based on user choice.
     // +1 and -1 add a buffer between the edge of the data and the ends of the axes.
     var x_Scale = d3.scaleLinear()
-                    .domain([d3.min(data.map(d => d[chosenXAxis]))-1, d3.max(data.map(d => d[chosenXAxis]))+1])
+                    .domain([xMin-xAxisShift, xMax+xAxisShift])
                     .range([0, chartWidth]);
     
     // Declares function to update y scaling rule based on user choice
     var y_Scale = d3.scaleLinear()
-                    .domain([d3.min(data.map(d => d[chosenYAxis]))-1, d3.max(data.map(d => d[chosenYAxis]))+1])
+                    .domain([yMin-yAxisShift, yMax+yAxisShift])
                     .range([chartHeight, 0]);
 
     // Appends circles to chart group and position based on poverty and healthcare data values
@@ -186,12 +195,14 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
 
             // Point chosenXAxis to dataset selected by user
             chosenXAxis = value;
-
+            xMin = d3.min(data.map(d => d[chosenXAxis]));
+            xMax = d3.max(data.map(d => d[chosenXAxis]));
+            xAxisShift = (xMax-xMin)/40;
             x_Scale = d3.scaleLinear()
-                .domain([d3.min(data.map(d => d[chosenXAxis]))-1, d3.max(data.map(d => d[chosenXAxis]))+1])
+                .domain([xMin-xAxisShift, xMax+xAxisShift])
                 .range([0, chartWidth]);
             y_Scale = d3.scaleLinear()
-                .domain([d3.min(data.map(d => d[chosenYAxis]))-1, d3.max(data.map(d => d[chosenYAxis]))+1])
+                .domain([yMin-yAxisShift, yMax+yAxisShift])
                 .range([chartHeight, 0]);
             chartGroup.selectAll("circle")
                 .data(data)
@@ -256,13 +267,15 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
 
             // Point chosenYAxis to dataset select by user
             chosenYAxis = value;
-
+            yMin = d3.min(data.map(d => d[chosenYAxis]));
+            yMax = d3.max(data.map(d => d[chosenYAxis]));
+            yAxisShift = (yMax-yMin)/40;
             x_Scale = d3.scaleLinear()
-                .domain([d3.min(data.map(d => d[chosenXAxis]))-1, d3.max(data.map(d => d[chosenXAxis]))+1])
+                .domain([xMin-xAxisShift, xMax+xAxisShift])
                 .range([0, chartWidth]);
             y_Scale = d3.scaleLinear()
-                .domain([d3.min(data.map(d => d[chosenYAxis]))-1, d3.max(data.map(d => d[chosenYAxis]))+1])
-                .range([chartHeight, 0]);
+                    .domain([yMin-yAxisShift, yMax+yAxisShift])
+                    .range([chartHeight, 0]);
             chartGroup.selectAll("circle")
                 .data(data)
                 .enter()
@@ -287,6 +300,25 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
                 .call(y_axis);
         } // closes if
     }); // closes event listener
+
+
+    // Pop-ups for circles
+
+    // Append a toolTip div
+    var toolTip = d3.select("body")
+                    .append("div")
+                    .attr("class", "toolTip");
+
+    d3.selectAll("circles").on("mouseover", function(d, i)
+    {
+        toolTip.style("display", "block");
+        toolTip.html(`data.abbr[i]<br>data[chosenxAxis]<br>[chosenYAxis]`);
+    })
+    .on("mouseout", function()
+    {
+        toolTip.style("display", "none");
+    }
+
     // Logs any errors to the console
 }).catch(function (error) {
     console.log(error);
