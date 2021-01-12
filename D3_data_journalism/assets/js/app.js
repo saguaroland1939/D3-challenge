@@ -105,7 +105,8 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .attr("text-anchor", "middle")
         .attr("x", 0)
         .attr("y", 20)
-        .text("Poverty Index");
+        .text("Poverty Index")
+        .style("font-weight", "bold");
     
     // Appends 2nd x-axis label
     labelGroupX.append("text")
@@ -113,7 +114,7 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .attr("text-anchor", "middle")
         .attr("x", 0)
         .attr("y", 40)
-        .text("Age");
+        .text("Age (years)");
 
     // Y-axis labels
 
@@ -129,7 +130,8 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .attr("x", 0 - (chartHeight / 2))
         .attr("dy", "4em") // Specifies label location
         .classed("axis-text", true)
-        .text("Healthcare Index");
+        .text("Healthcare Index")
+        .style("font-weight", "bold");
     
     // Appends 2nd y-axis label
     labelGroupY.append("text")
@@ -144,8 +146,9 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
 
     // Event listener for x-axis labels
     labelGroupX.selectAll("text").on("click", function()
-            {
-                d3.select(this).style("text-decoration", "underline");
+            {   
+                labelGroupX.selectAll("text").style("font-weight", "normal");
+                d3.select(this).style("font-weight", "bold");
                 var value = d3.select(this).text();
 
                 if (value == "Poverty Index") {
@@ -225,6 +228,8 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
     labelGroupY.selectAll("text")
         .on("click", function()
             {
+                labelGroupY.selectAll("text").style("font-weight", "normal");
+                d3.select(this).style("font-weight", "bold").style("fill", "black");
                 var value = d3.select(this).attr("value");
                 if(value !== chosenYAxis)
                 {
