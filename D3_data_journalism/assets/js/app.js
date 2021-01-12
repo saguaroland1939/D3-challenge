@@ -32,7 +32,7 @@ var chartGroup = svg.append("g")
 
 // Declares variables to hold user's dataset choice.
 // Defaults are set to display healthcare vs. poverty on page load.
-var chosenXAxis = "poverty";
+var chosenXAxis = "age";
 var chosenYAxis = "healthcare";
 
 // Imports data
@@ -41,20 +41,21 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
 
     // Converts arrays of interest to number data type
     data.forEach(function(d) {
-        d.poverty = +d.poverty;
-        d.healthcare = +d.healthcare;
         d.age = +d.age;
+        d.healthcare = +d.healthcare;
+        d.income = +d.income;
         d.smokes = +d.smokes;
     });
 
-    // Declares function to update x scaling rule based on user choice
+    // Declares function to update x scaling rule based on user choice.
+    // +1 and -1 add a buffer between the edge of the data and the ends of the axes.
     var x_Scale = d3.scaleLinear()
-                    .domain([d3.min(data.map(d => d[chosenXAxis]))-1, d3.max(data.map(d => d[chosenXAxis]))])
+                    .domain([d3.min(data.map(d => d[chosenXAxis]))-1, d3.max(data.map(d => d[chosenXAxis]))+1])
                     .range([0, chartWidth]);
     
     // Declares function to update y scaling rule based on user choice
     var y_Scale = d3.scaleLinear()
-                    .domain([d3.min(data.map(d => d[chosenYAxis]))-1, d3.max(data.map(d => d[chosenYAxis]))])
+                    .domain([d3.min(data.map(d => d[chosenYAxis]))-1, d3.max(data.map(d => d[chosenYAxis]))+1])
                     .range([chartHeight, 0]);
 
     // Appends circles to chart group and position based on poverty and healthcare data values
@@ -91,9 +92,11 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
 
     // Appends axes
     chartGroup.append("g")
+        .attr("class", "y")
         .call(y_axis);
         
     chartGroup.append("g")
+        .attr("class", "x")
         .attr("transform", "translate(0, " + chartHeight + ")") //Shifts x-axis to bottom of chart area
         .call(x_axis);
 
@@ -105,11 +108,11 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
 
     // Appends x-axis label
     labelGroupX.append("text")
-        .data("Poverty Index")
+        .data("Age")
         .attr("text-anchor", "middle")
         .attr("x", 0)
         .attr("y", 20)
-        .text("Poverty Index")
+        .text("Age")
         .style("font-weight", "bold");
     
     // Appends 2nd x-axis label
@@ -118,7 +121,7 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .attr("text-anchor", "middle")
         .attr("x", 0)
         .attr("y", 40)
-        .text("Age (years)");
+        .text("Income");
 
     // Y-axis labels
 
@@ -158,8 +161,6 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         d3.select(this).style("cursor", "default");
     });
     
-
-
     // Event listener/handler for click events on x-axis labels
     labelGroupX.selectAll("text").on("click", function()
     {   
@@ -170,26 +171,27 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         // Retrieves text string from selected label
         var value = d3.select(this).text();
                 
-        if (value == "Poverty Index") {
-            value = "poverty";
+        if (value == "Age") {
+            value = "age";
         }
-        if (value == "Age (years)") {
-                    value = "age";
+        if (value == "Income") {
+                    value = "income";
         }
         if(value !== chosenXAxis)
         {
-            // Remove all circles and circle labels currently on chart
+            // Remove chart components that need to be updated based on user selection
             chartGroup.selectAll("circle").remove();
             circleTextGroup.selectAll("text").remove();
+            chartGroup.select(".x").remove();
 
             // Point chosenXAxis to dataset selected by user
             chosenXAxis = value;
 
-            var x_Scale = d3.scaleLinear()
-                .domain([d3.min(data.map(d => d[chosenXAxis]))-1, d3.max(data.map(d => d[chosenXAxis]))])
+            x_Scale = d3.scaleLinear()
+                .domain([d3.min(data.map(d => d[chosenXAxis]))-1, d3.max(data.map(d => d[chosenXAxis]))+1])
                 .range([0, chartWidth]);
-            var y_Scale = d3.scaleLinear()
-                .domain([d3.min(data.map(d => d[chosenYAxis]))-1, d3.max(data.map(d => d[chosenYAxis]))])
+            y_Scale = d3.scaleLinear()
+                .domain([d3.min(data.map(d => d[chosenYAxis]))-1, d3.max(data.map(d => d[chosenYAxis]))+1])
                 .range([chartHeight, 0]);
             chartGroup.selectAll("circle")
                 .data(data)
@@ -209,6 +211,11 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
                 .attr("y", d => y_Scale(d[chosenYAxis])+104)
                 .attr("fill", "white")
                 .attr("font-size", "11");
+            x_axis = d3.axisBottom(x_Scale);
+            chartGroup.append("g")
+                .attr("class", "x")
+                .attr("transform", "translate(0, " + chartHeight + ")") //Shifts x-axis to bottom of chart area
+                .call(x_axis);
         } // closes if
     }); // closes event listener
 
@@ -224,57 +231,62 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         
     // Event listener/handler for click events on y-axis labels
     labelGroupY.selectAll("text").on("click", function()
-            {
-                // Switches highlight to selected label
-                labelGroupY.selectAll("text").style("font-weight", "normal");
-                d3.select(this).style("font-weight", "bold").style("fill", "black");
+    {
+        // Switches highlight to selected label
+        labelGroupY.selectAll("text").style("font-weight", "normal");
+        d3.select(this).style("font-weight", "bold").style("fill", "black");
                
-                // Retrieves text string from selected label
-                var value = d3.select(this).text();
+        // Retrieves text string from selected label
+        var value = d3.select(this).text();
 
-                if (value == "Healthcare Index") {
-                    value = "healthcare";
-                }
+        if (value == "Healthcare Index") {
+            value = "healthcare";
+        }
 
-                if (value == "Smoking Index") {
-                    value = "smokes";
-                }
+        if (value == "Smoking Index") {
+            value = "smokes";
+        }
                 
-                if(value !== chosenYAxis)
-                {
-                    // Remove all circles and circle labels currently on chart
-                    chartGroup.selectAll("circle").remove();
-                    circleTextGroup.selectAll("text").remove();
+        if(value !== chosenYAxis)
+        {
+            // Remove all circles and circle labels currently on chart
+            chartGroup.selectAll("circle").remove();
+            circleTextGroup.selectAll("text").remove();
+            chartGroup.select(".y").remove();
 
-                    // Point chosenYAxis to dataset select by user
-                    chosenYAxis = value;
+            // Point chosenYAxis to dataset select by user
+            chosenYAxis = value;
 
-                    var x_Scale = d3.scaleLinear()
-                        .domain([d3.min(data.map(d => d[chosenXAxis]))-1, d3.max(data.map(d => d[chosenXAxis]))])
-                        .range([0, chartWidth]);
-                    var y_Scale = d3.scaleLinear()
-                        .domain([d3.min(data.map(d => d[chosenYAxis]))-1, d3.max(data.map(d => d[chosenYAxis]))])
-                        .range([chartHeight, 0]);
-                    chartGroup.selectAll("circle")
-                        .data(data)
-                        .enter()
-                        .append("circle")
-                        .attr("cx", d => x_Scale(d[chosenXAxis])) 
-                        .attr("cy", d => y_Scale(d[chosenYAxis]))
-                        .attr("r", 10)
-                        .attr("fill", "#34a1eb");
-                    circleTextGroup.selectAll("text")
-                        .data(data)
-                        .enter()
-                        .append("text")
-                        .text(data => data.abbr)
-                        .attr("text-anchor", "middle") 
-                        .attr("x", d => x_Scale(d[chosenXAxis])+100)
-                        .attr("y", d => y_Scale(d[chosenYAxis])+104)
-                        .attr("fill", "white")
-                        .attr("font-size", "11");
-                } // closes if
-            }); // closes event listener
+            x_Scale = d3.scaleLinear()
+                .domain([d3.min(data.map(d => d[chosenXAxis]))-1, d3.max(data.map(d => d[chosenXAxis]))+1])
+                .range([0, chartWidth]);
+            y_Scale = d3.scaleLinear()
+                .domain([d3.min(data.map(d => d[chosenYAxis]))-1, d3.max(data.map(d => d[chosenYAxis]))+1])
+                .range([chartHeight, 0]);
+            chartGroup.selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("cx", d => x_Scale(d[chosenXAxis])) 
+                .attr("cy", d => y_Scale(d[chosenYAxis]))
+                .attr("r", 10)
+                .attr("fill", "#34a1eb");
+            circleTextGroup.selectAll("text")
+                .data(data)
+                .enter()
+                .append("text")
+                .text(data => data.abbr)
+                .attr("text-anchor", "middle") 
+                .attr("x", d => x_Scale(d[chosenXAxis])+100)
+                .attr("y", d => y_Scale(d[chosenYAxis])+104)
+                .attr("fill", "white")
+                .attr("font-size", "11");
+            y_axis = d3.axisLeft(y_Scale);
+            chartGroup.append("g")
+                .attr("class", "y")
+                .call(y_axis);
+        } // closes if
+    }); // closes event listener
     // Logs any errors to the console
 }).catch(function (error) {
     console.log(error);
