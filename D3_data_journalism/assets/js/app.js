@@ -145,6 +145,7 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
     // Event listener for x-axis labels
     labelGroupX.selectAll("text").on("click", function()
             {
+                d3.select(this).style("text-decoration", "underline");
                 var value = d3.select(this).text();
 
                 if (value == "Poverty Index") {
