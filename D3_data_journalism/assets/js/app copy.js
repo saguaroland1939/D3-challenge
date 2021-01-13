@@ -39,31 +39,26 @@ var chosenYAxis = "healthcare";
 var toolTip = d3.select("body")
                 .append("div")
                 .attr("class", "d3-tip")
-                .style("opacity", 100)
-                .style("position", "absolute")
-                .style("visibility", "hidden");
+                .style("position", "absolute");
+                //.style("display", "none");
 
-var mouseOver = function()
+var mouseOver = function(data)
 {
-    var d3Obj = d3.select(this);
-    var data = d3Obj.data();
-
-    var xPos = d3Obj.attr("cx");
-    var yPos = d3Obj.attr("cy");
-
-    xPos = parseInt(xPos) + 617
-    yPos = parseInt(yPos) + 119
-
-    toolTip.html(`<strong>${data[0].state}</strong><br>${chosenXAxis}: ${data[0][chosenXAxis]}<br>${chosenYAxis}: ${data[0][chosenYAxis]}`)
-            .style("display", "block")              
-            .style("left", xPos + "px")
-            .style("top", yPos + "px")
-            .style("visibility", "visible");
+    state = data.map(d => d.state);
+    xData = data.map(d => d[chosenXAxis]);
+    yData = data.map(d => d[chosenYAxis]);
+    console.log(state)
+    console.log(xData)
+    console.log(yData)
+    toolTip.html(`${state}<hr>${chosenXAxis}: ${xData}<br>${chosenYAxis}: ${yData}`)
+            .style("display", "block")
+            .style("left", x.pageX +"px")
+            .style("top", x.pageY +"px");
 };
 
 var mouseOut = function()
 {
-    toolTip.style("visibility", "hidden");
+    toolTip.style("display", "none");
 };
 
 // Imports data
@@ -108,8 +103,8 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .attr("cy", d => y_Scale(d[chosenYAxis]))
         .attr("r", 10)
         .attr("fill", "#34a1eb")
-        .on("mouseover", mouseOver)
-        .on("mouseout", mouseOut);
+        .on("mouseover", mouseOver(data))
+        .on("mouseout", mouseOut());
     
     // Append group element to chartGroup to hold circle labels so they can be removed on click events
     circleTextGroup = svg.append("g");
