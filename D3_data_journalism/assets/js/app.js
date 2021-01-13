@@ -1,5 +1,10 @@
-// README
-
+// * * *
+// App.js works in conjunction with app.py, index.html, and style.css to produce an interactive data plot.
+// -Loads data and draws scaled svg elements to produce the chart
+// -Handles click and hover events
+// -Swaps in new datasets when user clicks axis labels
+// -Pops up tooltips when user hovers mouse over data points
+// * * *
 
 // Declares SVG height and width variables
 var svgWidth = 1000;
@@ -239,7 +244,6 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
                 .duration(1000)
                 .attr("cx", d => x_Scale(d[chosenXAxis])) 
                 .attr("cy", d => y_Scale(d[chosenYAxis]));
-                //.on("mouseover", mouseOver);
             console.log(circleTextGroup.selectAll("text"))
             circleTextGroup.selectAll("text")
                 .transition()
@@ -304,7 +308,6 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
                 .duration(1000)
                 .attr("cx", d => x_Scale(d[chosenXAxis])) 
                 .attr("cy", d => y_Scale(d[chosenYAxis]));
-                //.on("mouseover", mouseOver);
             circleTextGroup.selectAll("text")
                 .transition()
                 .duration(1000)
