@@ -108,8 +108,7 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         .attr("cy", d => y_Scale(d[chosenYAxis]))
         .attr("r", 10)
         .attr("fill", "#34a1eb")
-        .on("mouseover", mouseOver)
-        .on("mouseout", mouseOut);
+        .on("mouseover", mouseOver);
     
     // Append group element to chartGroup to hold circle labels so they can be removed on click events
     circleTextGroup = svg.append("g");
@@ -221,9 +220,7 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
         }
         if(value !== chosenXAxis)
         {
-            // Remove chart components that need to be updated based on user selection
-            chartGroup.selectAll("circle").remove();
-            circleTextGroup.selectAll("text").remove();
+            // Remove x-axis. Will be replaced.
             chartGroup.select(".x").remove();
 
             // Point chosenXAxis to dataset selected by user
@@ -238,27 +235,22 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
                 .domain([yMin-yAxisShift, yMax+yAxisShift])
                 .range([chartHeight, 0]);
             chartGroup.selectAll("circle")
-                .data(data)
-                .enter()
-                .append("circle")
+                .transition()
+                .duration(1000)
                 .attr("cx", d => x_Scale(d[chosenXAxis])) 
-                .attr("cy", d => y_Scale(d[chosenYAxis]))
-                .attr("r", 10)
-                .attr("fill", "#34a1eb");
+                .attr("cy", d => y_Scale(d[chosenYAxis]));
+                //.on("mouseover", mouseOver);
+            console.log(circleTextGroup.selectAll("text"))
             circleTextGroup.selectAll("text")
-                .data(data)
-                .enter()
-                .append("text")
-                .text(data => data.abbr)
-                .attr("text-anchor", "middle") 
+                .transition()
+                .duration(1000)
                 .attr("x", d => x_Scale(d[chosenXAxis])+100)
                 .attr("y", d => y_Scale(d[chosenYAxis])+104)
-                .attr("fill", "white")
-                .attr("font-size", "11");
             x_axis = d3.axisBottom(x_Scale);
             chartGroup.append("g")
                 .attr("class", "x")
                 .attr("transform", "translate(0, " + chartHeight + ")") //Shifts x-axis to bottom of chart area
+                .transition().duration(1000)
                 .call(x_axis);
         } // closes if
     }); // closes event listener
@@ -293,9 +285,7 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
                 
         if(value !== chosenYAxis)
         {
-            // Remove all circles and circle labels currently on chart
-            chartGroup.selectAll("circle").remove();
-            circleTextGroup.selectAll("text").remove();
+            // Remove y-axis. Will be replaced.
             chartGroup.select(".y").remove();
 
             // Point chosenYAxis to dataset select by user
@@ -307,29 +297,23 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
                 .domain([xMin-xAxisShift, xMax+xAxisShift])
                 .range([0, chartWidth]);
             y_Scale = d3.scaleLinear()
-                    .domain([yMin-yAxisShift, yMax+yAxisShift])
-                    .range([chartHeight, 0]);
+                .domain([yMin-yAxisShift, yMax+yAxisShift])
+                .range([chartHeight, 0]);
             chartGroup.selectAll("circle")
-                .data(data)
-                .enter()
-                .append("circle")
+                .transition()
+                .duration(1000)
                 .attr("cx", d => x_Scale(d[chosenXAxis])) 
-                .attr("cy", d => y_Scale(d[chosenYAxis]))
-                .attr("r", 10)
-                .attr("fill", "#34a1eb");
+                .attr("cy", d => y_Scale(d[chosenYAxis]));
+                //.on("mouseover", mouseOver);
             circleTextGroup.selectAll("text")
-                .data(data)
-                .enter()
-                .append("text")
-                .text(data => data.abbr)
-                .attr("text-anchor", "middle") 
+                .transition()
+                .duration(1000)
                 .attr("x", d => x_Scale(d[chosenXAxis])+100)
                 .attr("y", d => y_Scale(d[chosenYAxis])+104)
-                .attr("fill", "white")
-                .attr("font-size", "11");
             y_axis = d3.axisLeft(y_Scale);
             chartGroup.append("g")
                 .attr("class", "y")
+                .transition().duration(1000)
                 .call(y_axis);
         } // closes if
     }); // closes event listener
