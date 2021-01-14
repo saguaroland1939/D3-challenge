@@ -30,16 +30,6 @@ var margin =
 var chartWidth = svgWidth - margin.left - margin.right;
 var chartHeight = svgHeight - margin.top - margin.bottom;
 
-
-// Appends group element to SVG element that will hold chart. Shifts it within margins.
-var chartGroup = svg.append("g")
-    .attr("transform", `translate(${margin.left}, ${margin.top})`);
-
-// Declares variables to hold user's dataset choice.
-// Defaults are set to display healthcare vs. poverty on page load.
-var chosenXAxis = "age";
-var chosenYAxis = "healthcare";
-
 // Appends toolTip div to body element
 var toolTip = d3.select("body")
                 .append("div")
@@ -48,6 +38,7 @@ var toolTip = d3.select("body")
                 .style("position", "absolute")
                 .style("visibility", "hidden");
 
+// Declares mouseOver function to show tooltip when user hovers mouse over data points
 var mouseOver = function()
 {
     var d3Obj = d3.select(this);
@@ -66,13 +57,25 @@ var mouseOver = function()
             .style("visibility", "visible");
 };
 
+// Declares mouseout function to hide tooltip when user moves mouse outside of chart area
 var mouseOut = function()
 {
     toolTip.style("visibility", "hidden");
 };
+var mouseOverChart = function() {};
+
+// Appends group element to SVG element that will hold chart. Shifts it within margins.
+var chartGroup = svg.append("g")
+    .attr("transform", `translate(${margin.left}, ${margin.top})`)
+
+
+// Declares variables to hold user's dataset choice.
+// Defaults are set to display healthcare vs. poverty on page load.
+var chosenXAxis = "age";
+var chosenYAxis = "healthcare";
 
 // Imports data
-d3.csv("/assets/data/data.csv").then(function (data, err) {
+d3.csv("/data").then(function (data, err) {
     if (err) throw err;
 
     // Converts arrays of interest to number data type
@@ -244,7 +247,6 @@ d3.csv("/assets/data/data.csv").then(function (data, err) {
                 .duration(1000)
                 .attr("cx", d => x_Scale(d[chosenXAxis])) 
                 .attr("cy", d => y_Scale(d[chosenYAxis]));
-            console.log(circleTextGroup.selectAll("text"))
             circleTextGroup.selectAll("text")
                 .transition()
                 .duration(1000)
