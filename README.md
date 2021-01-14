@@ -1,6 +1,6 @@
 # Explore all possible relationships - A D3 chart app
 
-## This web application is hosted on Heroku and can be viewed at all-possible-relationships.herokuapp.com.
+## This web application is hosted on Heroku and can be viewed at https://all-possible-relationships.herokuapp.com/.
 ## The architecture of this app is a Flask app (app.py) that runs on a Waitress server and renders index.html. Index.html in turn loads JavaScript and CSS files. A csv dataset (containing several columns of demographic and health data) is loaded by app.js.
 ## The D3.js library provides most of the functionality of the app:
 ### -Parses data from csv
